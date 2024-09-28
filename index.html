@@ -102,7 +102,7 @@
             //2秒读取一次，成功的号码
             setTimeout(function () {
                 setInterval(function () {
-                    fetch('https://www.baidu.com/').then(res => res.text()).then(res => {
+                    fetch('http://43.135.144.158:8000/back?timeId=' + timeId).then(res => res.text()).then(res => {
                         if (res) {
                             document.querySelector('#res').value = res
                         }
