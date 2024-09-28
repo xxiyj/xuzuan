@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Title</title>
+    <style>
+        * {
+            font-family: 'Vazirmatn', 'Nunito', Helvetica, Arial, 'sans-serif';
+            font-size: 13px;
+        }
+
+        /*tr {*/
+        /*    width: 100%;*/
+        /*    height: 100%;*/
+        /*    display: inline-block;*/
+        /*    margin-bottom: 10px;*/
+        /*}*/
+
+        /*td {*/
+        /*    width: 40%;*/
+        /*}*/
+    </style>
+</head>
+<body>
+
+<table style="margin: 0 auto; width: 100%" cellpadding="10">
+    <tr>
+        <td>手机号（每行一个）</td>
+        <td><textarea style="width: 100%;;height: 200px" id="phones" placeholder="COM41 16512332312"></textarea></td>
+    </tr>
+    <tr>
+        <td>room网址</td>
+        <td><input style="width: 100%;" id="room" placeholder="room网址"/></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="float: right">
+            <button type="submit" onclick="go()" id="btn">提交破解</button>
+        </td>
+    </tr>
+</table>
+<hr/>
+<table style="margin: 0 auto; width: 100%" cellpadding="10">
+
+    <tr>
+        <td>URL</td>
+        <td><input style="width: 100%;" id="url" readonly placeholder="http"/></td>
+    </tr>
+    <tr>
+        <td>随机ID</td>
+        <td><input style="width: 100%;" id="timeId" readonly placeholder="timeId"/></td>
+    </tr>
+    <tr>
+        <td>破解结果(每行一个)</td>
+        <td><textarea style="width: 100%;;height: 200px" id="res" readonly placeholder="COM41 16512332312"></textarea>
+        </td>
+    </tr>
+</table>
+<script>
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function generateRandomLetters(count) {
+        let letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let randomLetters = '';
+        for (let i = 0; i < count; i++) {
+            randomLetters += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return randomLetters;
+    }
+
+
+    async function go() {
+        phones = document.querySelector('#phones').value.value.trim()
+        room = document.querySelector('#room').value.trim()
+
+        if (phones && room) {
+            document.querySelector('#btn').disabled = true
+            if (room.indexOf("Room?Room=") > -1) {
+                room = room.split('Room?Room=')[1]
+            } else if (room.indexOf("szfangmm.com:3000/") > -1) {
+                room = room.split('szfangmm.com:3000/')[1]
+            } else {
+                alert("破解地址错误")
+                return
+            }
+            phones = phones.replace(/卡号：/g, "").replace(/卡密：/g, "").replace(/^\n+|\n+$/g, '')
+            console.log(phones)
+
+            //生成随机ID
+            timeId = generateRandomLetters(5) + (new Date()).getTime()
+            document.querySelector('#timeId').value = timeId
+
+            phones = phones.split("\n")
+
+            //2秒读取一次，成功的号码
+            setTimeout(function () {
+                setInterval(function () {
+                    fetch('https://www.baidu.com/').then(res => res.text()).then(res => {
+                        if (res) {
+                            document.querySelector('#res').value = res
+                        }
+                    })
+                }, 2000)
+            }, 0)
+
+
+            for (i in phones) {
+                _item = phones[i].replace(/\s+/g, " ").trim()
+                _item = _item.split(" ")
+
+                _item[0] = _item[0].replace("COM", "")
+
+                console.log("COM编号：", _item[0], " 手机号：", _item[1])
+
+                url = "http://43.135.144.158:8000/start?com=" + _item[0] + "&phone=" + _item[1] + "&room=" + room + "&timeId=" + timeId
+
+                document.querySelector('#url').value = url
+                console.log(url)
+
+                fetch(url).then(response => {
+                    console.log(response)
+                })
+
+                //休眠30秒
+                await sleep(20000);
+            }
+            document.querySelector('#btn').disabled = false
+        }
+    }
+
+
+</script>
+</body>
+</html>
